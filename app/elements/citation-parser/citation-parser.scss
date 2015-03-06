@@ -1,0 +1,53 @@
+/* Shadow DOM CSS Cheat Sheet */
+/* http://robdodson.me/blog/2014/04/10/shadow-dom-css-cheat-sheet */
+
+/* styles for the custom element itself - lowest specificity */
+:host {
+  display: block;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  padding: 10px;
+  background: lightblue;
+}
+
+paper-autogrow-textarea {
+  width: 90%;
+}
+
+h3 {
+  margin-top: 0;
+}
+
+.header {
+  margin-bottom: 1rem;
+}
+
+.citation-data {
+  margin-right: 2rem;
+  overflow-x: auto;
+  background: white;
+  padding: 10px;
+}
+
+.column:nth-of-type(2) {
+  padding-left: 2rem;
+}
+
+crossref-item {
+  background: white;
+  margin-bottom: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+  opacity: 0.7;
+  border: 1px solid transparent;
+  border-left-width: 5px;
+}
+
+crossref-item:hover {
+  opacity: 1;
+}
+
+crossref-item[selected] {
+  border-color: #000;
+  opacity: 1;
+}

@@ -1,0 +1,154 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/web-resource/web-resource-scripts.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-autogrow-textarea.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+
+<polymer-element name="citation-parser" attributes="input mimetype">
+  <template>
+    <link rel="stylesheet" href="citation-parser.css">
+
+    <h3>Citation</h3>
+
+    <div layout vertical class="header">
+      <div>
+        <paper-autogrow-textarea rows="2" id="input">
+          <textarea value="{{ input }}" on-keyup="{{ setEdited }}"></textarea>
+        </paper-autogrow-textarea>
+      </div>
+
+      <div>
+        <div id="status">
+          <template if="{{ searching }}">
+            <span>Searching…</span>
+          </template>
+
+          <template if="{{ fetching }}">
+            <span>Fetching…</span>
+          </template>
+
+          <template if="{{ notfound }}">
+            <span>Not Found!</span>
+          </template>
+
+          <template if="{{ error }}">
+            <span>Error!</span>
+          </template>
+        </div>
+      </div>
+
+      <template if="{{ edited && searched && !searching }}">
+        <div>
+          <paper-button on-tap="{{ search }}">Search again</paper-button>
+        </div>
+      </template>
+    </div>
+
+    <div layout horizontal>
+      <div flex class="column">
+        <h3>Matches</h3>
+        <core-menu>
+          <template repeat="{{ item in items }}">
+            <core-item layout horizontal>
+              <crossref-item flex
+                item="{{ item }}"
+                doi="{{ item.DOI }}"
+                selected?="{{ selectedDoi === item.DOI }}"
+                on-tap="{{ selectItem }}"></crossref-item>
+            </core-item>
+          </template>
+        </core-menu>
+      </div>
+
+      <div flex class="column">
+        <h3>Citation data</h3>
+
+        <template if="{{ citationData }}">
+          <pre class="citation-data"><code>{{ citationData }}</code></pre>
+        </template>
+        <template if="{{ selectedDoi && !citationData }}">
+          <div>Fetching citation data…</div>
+        </template>
+      </div>
+    </div>
+  </template>
+  <script>
+    (function () {
+      Polymer({
+        input: '',
+        mimetype: '',
+        selectedItem: 0,
+        edited: false,
+        searching: false,
+        searched: false,
+        error: false,
+        notfound: false,
+        ready: function() {
+          this.$.input.update();
+          this.search();
+        },
+        search: function () {
+          this.searching = true;
+          this.error = false;
+          this.notfound = false;
+
+          var resource = new Resource('http://api.crossref.org/works', {
+            query: this.input.replace(/[^\w\s]/g, '\\:'),
+            rows: 3
+          });
+
+          resource.get('json').then(function(data) {
+            this.searching = false;
+            this.searched = true;
+
+            if (data.status !== 'ok') {
+              this.notfound = true;
+              return null;
+            }
+
+            this.items = data.message.items;
+
+            if (this.items.length) {
+              if (this.items[0].score > 0.5) {
+                this.selectedDoi = this.items[0].DOI;
+              }
+            }
+          }.bind(this), function() {
+            this.searching = false;
+            this.searched = true;
+            this.error = true;
+          }.bind(this));
+        },
+        setEdited: function() {
+          this.edited = true;
+        },
+        selectItem: function(event, details, sender) {
+          var doi = sender.getAttribute('doi');
+
+          if (this.selectedDoi === doi) {
+            this.selectedDoi = null;
+            return;
+          }
+
+          this.selectedDoi = doi;
+        },
+        selectedDoiChanged: function() {
+          if (!this.selectedDoi) {
+            this.citationData = null;
+            return;
+          }
+
+          var resource = new Resource('http://api.crossref.org/works/' + encodeURIComponent(this.selectedDoi) + '/transform/' + this.mimetype);
+
+          resource.get('text', null, {
+            queue: 'citation'
+          }).then(function(data) {
+            this.citationData = data;
+          }.bind(this), function() {
+            this.error = true;
+            //console.error('Error fetching data');
+          }.bind(this));
+        }
+      });
+    })();
+  </script>
+</polymer-element>
