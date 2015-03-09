@@ -1,0 +1,17 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>web-resource demo</title>
+
+<link rel="import" href="web-resource-scripts.html">
+
+<body>
+
+<pre><output>Fetching…</output></pre>
+
+<script>
+var resource = new Resource('https://api.spotify.com/v1/artists/5Al98vDcGka3JcJ1WlZYoN');
+
+resource.get('json').then(function(data) {
+    document.querySelector('output').textContent = JSON.stringify(data, null, '  ');
+});
+</script>

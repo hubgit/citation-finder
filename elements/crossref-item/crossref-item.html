@@ -1,0 +1,21 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+<polymer-element name="crossref-item" attributes="item mimetype selected" noscript>
+  <template>
+    <link rel="stylesheet" href="crossref-item.css">
+
+    <div class="article" on-tap="{{ toggleSelection }}" selected?="{{ item.selected }}">
+      <div class="title">{{ item.title }}</div>
+
+      <div class="authors">
+        <template repeat="{{ item.author }}"><span>{{ family }} {{ given }}</span></template>
+      </div>
+
+      <div>
+        <span class="date">{{ item.issued['date-parts'][0][0] }}</span>
+        &middot;
+        <span class="journal">{{ item['container-title'] }}</span>
+      </div>
+    </div>
+  </template>
+</polymer-element>
