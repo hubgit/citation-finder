@@ -38,7 +38,7 @@
 
       <template if="{{ edited && searched && !searching }}">
         <div>
-          <paper-button on-tap="{{ search }}">Search again</paper-button>
+          <paper-button raised on-tap="{{ searchAgain }}">Search again</paper-button>
         </div>
       </template>
     </div>
@@ -46,10 +46,17 @@
     <div layout horizontal>
       <div flex class="column">
         <h3>Matches</h3>
+
+        <template if="{{ !selectedDoi }}">
+          <p>No matches selected!</p>
+          <p>Either select the correct match, edit the text above and search again, or leave unselected if none are correct.</p>
+        </template>
+
         <core-menu>
           <template repeat="{{ item in items }}">
             <core-item layout horizontal>
               <crossref-item flex
+                style="opacity:{{ item.score }}"
                 item="{{ item }}"
                 doi="{{ item.DOI }}"
                 selected?="{{ selectedDoi === item.DOI }}"
@@ -60,13 +67,15 @@
       </div>
 
       <div flex class="column">
-        <h3>Citation data</h3>
+        <template if="{{ selectedDoi }}">
+          <h3>Citation data</h3>
 
-        <template if="{{ citationData }}">
-          <pre class="citation-data"><code>{{ citationData }}</code></pre>
-        </template>
-        <template if="{{ selectedDoi && !citationData }}">
-          <div>Fetching citation data…</div>
+          <template if="{{ citationData }}">
+            <pre class="citation-data"><code>{{ citationData }}</code></pre>
+          </template>
+          <template if="{{ selectedDoi && !citationData }}">
+            <div>Fetching citation data…</div>
+          </template>
         </template>
       </div>
     </div>
@@ -76,27 +85,32 @@
       Polymer({
         input: '',
         mimetype: '',
-        selectedItem: 0,
         edited: false,
         searching: false,
         searched: false,
         error: false,
         notfound: false,
+        priority: false,
         ready: function() {
           this.$.input.update();
+          this.search();
+        },
+        searchAgain: function() {
+          this.priority = true;
           this.search();
         },
         search: function () {
           this.searching = true;
           this.error = false;
           this.notfound = false;
+          this.edited = false;
 
           var resource = new Resource('http://api.crossref.org/works', {
             query: this.input.replace(/[^\w\s]/g, '\\:'),
             rows: 3
           });
 
-          resource.get('json').then(function(data) {
+          resource.get('json', null, { priority: this.priority }).then(function(data) {
             this.searching = false;
             this.searched = true;
 

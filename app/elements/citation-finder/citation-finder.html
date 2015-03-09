@@ -18,47 +18,56 @@
       </paper-autogrow-textarea>
     </div>
 
-    <div>
-      <h2>2. Choose a citation format</h2>
+    <template if="{{ input }}">
+      <div>
+        <h2>2. Choose a citation format</h2>
 
-      <paper-radio-group selected="{{ mimetype }}">
-        <paper-radio-button name="application/x-research-info-systems" label="RIS (Endnote, etc)"></paper-radio-button>
-        <paper-radio-button name="application/x-bibtex" label="BibTeX"></paper-radio-button>
-      </paper-radio-group>
-    </div>
+        <paper-radio-group selected="{{ mimetype }}">
+          <paper-radio-button name="application/x-research-info-systems" label="RIS (Endnote, etc)"></paper-radio-button>
+          <paper-radio-button name="application/x-bibtex" label="BibTeX"></paper-radio-button>
+        </paper-radio-group>
+      </div>
+    </template>
 
-    <div>
-      <h2>3. Search for matches</h2>
+    <template if="{{ input && mimetype }}">
+      <div>
+        <h2>3. Search for matches</h2>
+
+        <div>
+          <paper-button raised on-tap="{{ split }}">Search</paper-button>
+        </div>
+      </div>
+    </template>
+
+    <template if="{{ citations.length }}"
+      <div>
+        <h2>4. Review the matched citations</h2>
+
+        <p>Check each result below, select the correct match for each item, then press <b>"Download All"</b> at the end of the page.</p>
+
+        <p>You can edit the citation text and search again, if a good match wasn't found.</p>
+
+        <p>If no correct match can be found, leave the item with no matches selected.</p>
+        
+        <div>
+          <pre id="output"><template repeat="{{ output }}"><code>{{ }}</code></template></pre>
+        </div>
+
+        <div>
+          <template repeat="{{ citation in citations }}">
+            <citation-parser input="{{ citation }}" mimetype="{{ mimetype }}"></citation-parser>
+          </template>
+        </div>
+      </div>
 
       <div>
-        <paper-button raised on-tap="{{ split }}">Search</paper-button>
+        <h2>5. Download</h2>
+
+        <div>
+          <paper-button raised on-tap="{{ downloadAll }}">Download all selected citations</paper-button>
+        </div>
       </div>
-    </div>
-
-    <div>
-      <h2>4. Review the matched citations</h2>
-
-      <p>Edit the citation text and search again, if a good match wasn't found.</p>
-
-      <p>Click on the correct match to select it, if not selected automatically.</p>
-
-      <p>Unselect any incorrect matches to exclude them.</p>
-
-      <div>
-        <pre id="output"><template repeat="{{ output }}"><code>{{ }}</code></template></pre>
-      </div>
-
-      <div>
-        <template repeat="{{ citation in citations }}">
-          <citation-parser input="{{ citation }}" mimetype="{{ mimetype }}"></citation-parser>
-        </template>
-      </div>
-
-      <h3>5. Download</h2>
-
-      <div>
-        <paper-button raised on-tap="{{ downloadAll }}">Download all selected citations</paper-button>
-      </div>
+    </template>
   </template>
   <script>
     (function () {
@@ -66,6 +75,7 @@
         mimetype: 'application/x-research-info-systems',
         input: '',
         ready: function() {
+          this.citations = [];
           this.$.input.focus();
         },
         split: function() {

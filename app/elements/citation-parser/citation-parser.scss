@@ -14,6 +14,11 @@ paper-autogrow-textarea {
   width: 90%;
 }
 
+paper-button[raised] {
+  background: #4285f4;
+  color: #fff;
+}
+
 h3 {
   margin-top: 0;
 }
@@ -50,4 +55,5 @@ crossref-item:hover {
 crossref-item[selected] {
   border-color: #000;
   opacity: 1;
+  background-color: yellow;
 }
