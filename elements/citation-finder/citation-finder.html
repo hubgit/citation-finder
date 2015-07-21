@@ -76,6 +76,8 @@
         input: '',
         ready: function() {
           this.citations = [];
+        },
+        domReady: function() {
           this.$.input.focus();
         },
         split: function() {
