@@ -1,0 +1,7 @@
+{
+"version": 3,
+"mappings": ";;;AAIA,KAAM;EACJ,OAAO,EAAE,KAAK;;;AAGhB,EAAG;EACD,UAAU,EAAE,IAAI;;;AAGlB,CAAE;EACA,KAAK,EAAE,OAAO;EACd,WAAW,EAAE,GAAG;;;AAGlB,uBAAwB;EACtB,KAAK,EAAE,IAAI;;;AAGb,qBAAsB;EACpB,SAAS,EAAE,GAAG;;;AAGhB,oBAAqB;EACnB,UAAU,EAAE,OAAO;EACnB,KAAK,EAAE,IAAI;;;AAGb,SAAU;EACR,MAAM,EAAE,OAAO;;;AAGjB,iBAAkB;EAChB,KAAK,EAAE,KAAK",
+"sources": ["../../citation-finder/citation-finder.scss"],
+"names": [],
+"file": "citation-finder.css"
+}
