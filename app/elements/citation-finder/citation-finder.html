@@ -48,7 +48,7 @@
         <p>You can edit the citation text and search again, if a good match wasn't found.</p>
 
         <p>If no correct match can be found, leave the item with no matches selected.</p>
-        
+
         <div>
           <pre id="output"><template repeat="{{ output }}"><code>{{ }}</code></template></pre>
         </div>
@@ -88,17 +88,24 @@
           });
         },
         downloadAll: function() {
-          var nodes = this.shadowRoot.querySelectorAll(':host /deep/ .citation-data');
+          //var nodes = this.shadowRoot.querySelectorAll(':host /deep/ .citation-data');
+          var nodes = document.querySelectorAll('html /deep/ .citation-data');
 
           var text = Array.prototype.map.call(nodes, function(node) {
             return node.textContent.trim();
           }).join('\n');
 
-          var blob = new Blob([text], { type: this.mimetype });
-          var url = URL.createObjectURL(blob);
-          var link = document.createElement('a');
-          link.setAttribute('href', url);
-          link.click();
+          // open a data url in Safari (is there a better workaround?)
+          if (typeof safari !== 'undefined') {
+            window.location.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(text);
+            //window.location.href = 'data:' + this.mimetype + ',' + encodeURIComponent(text);
+          } else {
+            var blob = new Blob([text], { type: this.mimetype });
+            var url = URL.createObjectURL(blob);
+            var link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.click();
+          }
         }
       });
     })();
