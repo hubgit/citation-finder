@@ -12,15 +12,12 @@ h2 {
 
 p {
   color: #4E4E4E;
-  font-weight: 200;
+  font-weight: 400;
 }
 
-paper-autogrow-textarea {
-  width: 100%;
-}
-
-:host /deep/ textarea {
-  font-size: 90%;
+:host /deep/ paper-input-container {
+  background-color: white;
+  padding: 8px 10px;
 }
 
 paper-button[raised] {
