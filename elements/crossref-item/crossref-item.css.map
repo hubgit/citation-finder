@@ -1,7 +1,0 @@
-{
-"version": 3,
-"mappings": ";;;AAIA,KAAM;EACJ,OAAO,EAAE,KAAK;;;AAGhB,MAAO;EACL,WAAW,EAAE,IAAI;;;AAGnB,QAAS;EACP,KAAK,EAAE,OAAO;EACd,eAAe,EAAE,IAAI;;;AAGvB,wCAAyC;EACvC,OAAO,EAAE,IAAI",
-"sources": ["../../crossref-item/crossref-item.scss"],
-"names": [],
-"file": "crossref-item.css"
-}

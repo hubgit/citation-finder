@@ -1,1 +1,1 @@
-:host{display:block}h2{margin-top:2rem}p{color:#4E4E4E;font-weight:200}paper-autogrow-textarea{width:100%}:host /deep/ textarea{font-size:90%}paper-button[raised]{background:#4285f4;color:#fff}core-item{cursor:pointer}core-item[active]{color:green}
+:host{display:block}h2{margin-top:2rem}p{color:#4E4E4E;font-weight:400}:host /deep/ paper-input-container{background-color:#fff;padding:8px 10px}paper-button[raised]{background:#4285f4;color:#fff}core-item{cursor:pointer}core-item[active]{color:green}
