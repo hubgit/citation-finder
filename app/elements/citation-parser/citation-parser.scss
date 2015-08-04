@@ -52,7 +52,7 @@ crossref-item:hover {
   opacity: 1;
 }
 
-crossref-item[selected] {
+crossref-item[selected="selected"] {
   border-color: #000;
   opacity: 1;
   background-color: yellow;

@@ -1,113 +1,114 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../../bower_components/paper-input/paper-autogrow-textarea.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-textarea.html">
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../../bower_components/paper-radio-group/paper-radio-group.html">
 <link rel="import" href="../../../bower_components/paper-radio-button/paper-radio-button.html">
 
-<polymer-element name="citation-finder">
-  <template>
-    <link rel="stylesheet" href="citation-finder.css">
+<dom-module id="citation-finder">
+  <link rel="import" type="css" href="citation-finder.css">
 
+  <template>
     <div>
       <h2>1. Enter citations</h2>
 
-      <p>Enter a list of citations, with each one on a new line:</p>
-
-      <paper-autogrow-textarea rows="3" maxRows="10">
-        <textarea id="input" value="{{ input }}"></textarea>
-      </paper-autogrow-textarea>
+      <paper-textarea maxrows="10" value="{{input}}" label="Enter a list of citations, with each one on a new line:"></paper-textarea>
     </div>
 
-    <template if="{{ input }}">
+    <template is="dom-if" if="{{input}}">
       <div>
         <h2>2. Choose a citation format</h2>
 
-        <paper-radio-group selected="{{ mimetype }}">
-          <paper-radio-button name="application/x-research-info-systems" label="RIS (Endnote, etc)"></paper-radio-button>
-          <paper-radio-button name="application/x-bibtex" label="BibTeX"></paper-radio-button>
+        <paper-radio-group selected="{{mimetype}}">
+          <paper-radio-button name="application/x-research-info-systems">RIS (Endnote, etc)</paper-radio-button>
+          <paper-radio-button name="application/x-bibtex">BibTeX</paper-radio-button>
         </paper-radio-group>
       </div>
     </template>
 
-    <template if="{{ input && mimetype }}">
+    <template is="dom-if" if="{{computeIf(input, mimetype)}}">
       <div>
         <h2>3. Search for matches</h2>
 
         <div>
-          <paper-button raised on-tap="{{ split }}">Search</paper-button>
+          <paper-button raised on-tap="split">Search</paper-button>
         </div>
       </div>
     </template>
 
-    <template if="{{ citations.length }}"
+    <template is="dom-if" if="{{citations.length}}">
+      <h2>4. Review the matched citations</h2>
+
+      <p>Check each result below, select the correct match for each item, then press <b>"Download All"</b> at the end of the page.</p>
+
+      <p>You can edit the citation text and search again, if a good match wasn't found.</p>
+
+      <p>If no correct match can be found, leave the item with no matches selected.</p>
+
       <div>
-        <h2>4. Review the matched citations</h2>
+        <pre id="output"><template is="dom-repeat" items="{{output}}" as="item"><code>{{item}}</code></template></pre>
+      </div>
 
-        <p>Check each result below, select the correct match for each item, then press <b>"Download All"</b> at the end of the page.</p>
-
-        <p>You can edit the citation text and search again, if a good match wasn't found.</p>
-
-        <p>If no correct match can be found, leave the item with no matches selected.</p>
-
-        <div>
-          <pre id="output"><template repeat="{{ output }}"><code>{{ }}</code></template></pre>
-        </div>
-
-        <div>
-          <template repeat="{{ citation in citations }}">
-            <citation-parser input="{{ citation }}" mimetype="{{ mimetype }}"></citation-parser>
-          </template>
-        </div>
+      <div>
+        <template is="dom-repeat" items="{{citations}}" as="citation">
+          <citation-parser input="{{citation}}" mimetype="{{mimetype}}"></citation-parser>
+        </template>
       </div>
 
       <div>
         <h2>5. Download</h2>
 
         <div>
-          <paper-button raised on-tap="{{ downloadAll }}">Download all selected citations</paper-button>
+          <paper-button raised on-tap="downloadAll">Download all selected citations</paper-button>
         </div>
       </div>
     </template>
   </template>
-  <script>
-    (function () {
-      Polymer({
-        mimetype: 'application/x-research-info-systems',
-        input: '',
-        ready: function() {
-          this.citations = [];
+</dom-module>
+<script>
+  (function () {
+    Polymer({
+      is: 'citation-finder',
+      properties: {
+        input: {
+          type: String,
+          value: ''
         },
-        domReady: function() {
-          this.$.input.focus();
-        },
-        split: function() {
-          this.citations = this.input.trim().split(/\n/).map(function(item) {
-            return item.trim();
-          }).filter(function(item) {
-            return item;
-          });
-        },
-        downloadAll: function() {
-          //var nodes = this.shadowRoot.querySelectorAll(':host /deep/ .citation-data');
-          var nodes = document.querySelectorAll('html /deep/ .citation-data');
-
-          var text = Array.prototype.map.call(nodes, function(node) {
-            return node.textContent.trim();
-          }).join('\n');
-
-          // open a data url in Safari (is there a better workaround?)
-          if (typeof safari !== 'undefined') {
-            window.location.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(text);
-            //window.location.href = 'data:' + this.mimetype + ',' + encodeURIComponent(text);
-          } else {
+        mimetype: {
+          type: String,
+          value: 'application/x-research-info-systems'
+        }
+      },
+      ready: function () {
+        this.citations = [];
+      },
+      split: function () {
+        this.citations = this.input.trim().split(/\n/).map(function (item) {
+          return item.trim();
+        }).filter(function (item) {
+          return item;
+        });
+      },
+      downloadAll: function () {
+        //var nodes = this.shadowRoot.querySelectorAll(':host /deep/ .citation-data');
+        var nodes = document.querySelectorAll('html /deep/ .citation-data');
+        var text = Array.prototype.map.call(nodes, function (node) {
+          return node.textContent.trim();
+        }).join('\n');
+        // open a data url in Safari (is there a better workaround?)
+        if (typeof safari !== 'undefined') {
+          window.location.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(text);
+          //window.location.href = 'data:' + this.mimetype + ',' + encodeURIComponent(text);
+        } else {
             var blob = new Blob([text], { type: this.mimetype });
             var url = URL.createObjectURL(blob);
             var link = document.createElement('a');
             link.setAttribute('href', url);
             link.click();
           }
-        }
-      });
-    })();
-  </script>
-</polymer-element>
+      },
+      computeIf: function (input, mimetype) {
+        return input && mimetype;
+      }
+    });
+  }());
+</script>

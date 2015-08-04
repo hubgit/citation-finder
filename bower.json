@@ -2,13 +2,12 @@
   "name": "citation-finder",
   "version": "0.0.0",
   "dependencies": {
-    "core-elements": "Polymer/core-elements#^0.5.1",
-    "paper-elements": "Polymer/paper-elements#^0.5.1",
-    "polymer": "Polymer/polymer#^0.5.4",
-    "web-resource": "hubgit/web-resource",
-    "font-roboto": "Polymer/font-roboto#~0.5.5"
-  },
-  "devDependencies": {
-    "web-component-tester": "Polymer/web-component-tester#^2.2.3"
+    "web-resource": "hubgit/web-resource#~1.0.0",
+    "polymer": "Polymer/polymer#~1.0.0",
+    "paper-button": "PolymerElements/paper-button#~1.0.3",
+    "paper-radio-group": "PolymerElements/paper-radio-group#~1.0.4",
+    "paper-radio-button": "PolymerElements/paper-radio-button#~1.0.5",
+    "paper-input": "PolymerElements/paper-input#~1.0.8",
+    "iron-flex-layout": "PolymerElements/iron-flex-layout#~1.0.2"
   }
 }
