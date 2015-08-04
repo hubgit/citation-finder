@@ -1,44 +1,58 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../../bower_components/web-resource/web-resource-scripts.html">
-<link rel="import" href="../../../bower_components/paper-input/paper-autogrow-textarea.html">
+<link rel="import" href="../../../bower_components/web-resource/import.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-textarea.html">
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
 
-<polymer-element name="citation-parser" attributes="input mimetype">
+<dom-module id="citation-parser">
+  <style>
+    [layout] {
+      @apply(--layout);
+    }
+    [layout][vertical] {
+      @apply(--layout-vertical);
+    }
+    [layout][horizontal] {
+      @apply(--layout-horizontal);
+    }
+    [flex] {
+      @apply(--layout-flex);
+    }
+  </style>
+
+  <link rel="import" type="css" href="citation-parser.css">
+
   <template>
-    <link rel="stylesheet" href="citation-parser.css">
-
     <h3>Citation</h3>
 
     <div layout vertical class="header">
       <div>
-        <paper-autogrow-textarea rows="2" id="input">
-          <textarea value="{{ input }}" on-keyup="{{ setEdited }}"></textarea>
-        </paper-autogrow-textarea>
+        <paper-textarea id="input" value="{{input}}"></paper-textarea>
       </div>
 
       <div>
         <div id="status">
-          <template if="{{ searching }}">
+          <template is="dom-if" if="{{searching}}">
             <span>Searching…</span>
           </template>
 
-          <template if="{{ fetching }}">
+          <template is="dom-if" if="{{fetching}}">
             <span>Fetching…</span>
           </template>
 
-          <template if="{{ notfound }}">
+          <template is="dom-if" if="{{notfound}}">
             <span>Not Found!</span>
           </template>
 
-          <template if="{{ error }}">
+          <template is="dom-if" if="{{error}}">
             <span>Error!</span>
           </template>
         </div>
       </div>
 
-      <template if="{{ edited && searched && !searching }}">
+      <template is="dom-if" if="{{computeSearchAgain(edited, searched, searching)}}">
         <div>
-          <paper-button raised on-tap="{{ searchAgain }}">Search again</paper-button>
+          <paper-button raised on-tap="searchAgain">Search again</paper-button>
         </div>
       </template>
     </div>
@@ -47,122 +61,159 @@
       <div flex class="column">
         <h3>Matches</h3>
 
-        <template if="{{ !selectedDoi }}">
+        <template is="dom-if" if="{{computeNoMatchSelected(selectedDoi)}}">
           <p>No matches selected!</p>
           <p>Either select the correct match, edit the text above and search again, or leave unselected if none are correct.</p>
         </template>
 
-        <core-menu>
-          <template repeat="{{ item in items }}">
-            <core-item layout horizontal>
-              <crossref-item flex
-                style="opacity:{{ item.score }}"
-                item="{{ item }}"
-                doi="{{ item.DOI }}"
-                selected?="{{ selectedDoi === item.DOI }}"
-                on-tap="{{ selectItem }}"></crossref-item>
-            </core-item>
+        <paper-menu>
+          <template is="dom-repeat" items="{{items}}" as="item">
+            <paper-item layout horizontal>
+              <crossref-item flex style="{{computeStyle(item.score)}}" article="{{item}}" doi="{{item.DOI}}" selected$="{{computeSelected(item.DOI, selectedDoi)}}" on-tap="selectItem"></crossref-item>
+            </paper-item>
           </template>
-        </core-menu>
+        </paper-menu>
       </div>
 
       <div flex class="column">
-        <template if="{{ selectedDoi }}">
+        <template is="dom-if" if="{{selectedDoi}}">
           <h3>Citation data</h3>
 
-          <template if="{{ citationData }}">
-            <pre class="citation-data"><code>{{ citationData }}</code></pre>
+          <template is="dom-if" if="{{citationData}}">
+            <pre class="citation-data"><code>{{citationData}}</code></pre>
           </template>
-          <template if="{{ selectedDoi && !citationData }}">
+          <template is="dom-if" if="{{computeFetching(citationData, selectedDoi)}}">
             <div>Fetching citation data…</div>
           </template>
         </template>
       </div>
     </div>
   </template>
-  <script>
-    (function () {
-      Polymer({
-        input: '',
-        mimetype: '',
-        edited: false,
-        searching: false,
-        searched: false,
-        error: false,
-        notfound: false,
-        priority: false,
-        ready: function() {
-          this.$.input.update();
-          this.search();
+</dom-module>
+<script>
+  (function () {
+    Polymer({
+      is: 'citation-parser',
+      properties: {
+        edited: {
+          type: Boolean,
+          value: false
         },
-        searchAgain: function() {
-          this.priority = true;
-          this.search();
+        error: {
+          type: Boolean,
+          value: false
         },
-        search: function () {
-          this.searching = true;
-          this.error = false;
-          this.notfound = false;
-          this.edited = false;
-
-          var resource = new Resource('http://api.crossref.org/works', {
-            query: this.input.replace(/[^\w\s]/g, '\\:'),
-            rows: 3
-          });
-
-          resource.get('json', null, { priority: this.priority }).then(function(data) {
-            this.searching = false;
-            this.searched = true;
-
-            if (data.status !== 'ok') {
-              this.notfound = true;
-              return null;
-            }
-
-            this.items = data.message.items;
-
-            if (this.items.length) {
-              if (this.items[0].score > 0.5) {
-                this.selectedDoi = this.items[0].DOI;
-              }
-            }
-          }.bind(this), function() {
-            this.searching = false;
-            this.searched = true;
-            this.error = true;
-          }.bind(this));
+        input: {
+          type: String,
+          value: '',
+          notify: true,
+          observer: 'inputChanged'
         },
-        setEdited: function() {
-          this.edited = true;
+        mimetype: {
+          type: String,
+          value: '',
+          notify: true
         },
-        selectItem: function(event, details, sender) {
-          var doi = sender.getAttribute('doi');
-
-          if (this.selectedDoi === doi) {
-            this.selectedDoi = null;
-            return;
-          }
-
-          this.selectedDoi = doi;
+        notfound: {
+          type: Boolean,
+          value: false
         },
-        selectedDoiChanged: function() {
-          if (!this.selectedDoi) {
-            this.citationData = null;
-            return;
-          }
-
-          var resource = new Resource('http://api.crossref.org/works/' + encodeURIComponent(this.selectedDoi) + '/transform/' + this.mimetype);
-
-          resource.get('text', null, {
-            queue: 'citation'
-          }).then(function(data) {
-            this.citationData = data;
-          }.bind(this), function() {
-            this.error = true;
-            //console.error('Error fetching data');
-          }.bind(this));
+        priority: {
+          type: Boolean,
+          value: false
+        },
+        searched: {
+          type: Boolean,
+          value: false
+        },
+        searching: {
+          type: Boolean,
+          value: false
+        },
+        selectedDoi: {
+          type: String,
+          observer: 'selectedDoiChanged'
         }
-      });
-    })();
-  </script>
-</polymer-element>
+      },
+      ready: function () {
+        //this.$.input.update();
+        this.search();
+      },
+      searchAgain: function () {
+        this.priority = true;
+        this.search();
+      },
+      search: function () {
+        this.searching = true;
+        this.error = false;
+        this.notfound = false;
+        this.edited = false;
+        var resource = new Resource('http://api.crossref.org/works', {
+          query: this.input.replace(/[^\w\s]/g, '\\:'),
+          rows: 3
+        });
+        resource.get('json', null, { priority: this.priority }).then(function (data) {
+          this.searching = false;
+          this.searched = true;
+          if (data.status !== 'ok') {
+            this.notfound = true;
+            return null;
+          }
+          this.items = data.message.items;
+          if (this.items.length) {
+            if (this.items[0].score > 0.5) {
+              this.selectedDoi = this.items[0].DOI;
+            }
+          }
+        }.bind(this), function () {
+          this.searching = false;
+          this.searched = true;
+          this.error = true;
+        }.bind(this));
+      },
+      inputChanged: function() {
+        this.edited = true;
+      },
+      selectItem: function (event) {
+        var doi = event.currentTarget.getAttribute('doi');
+
+        if (this.selectedDoi === doi) {
+          this.selectedDoi = null;
+          return;
+        }
+        this.selectedDoi = doi;
+      },
+      selectedDoiChanged: function () {
+        var selectedDoi = this.selectedDoi;
+
+        if (!selectedDoi) {
+          this.citationData = null;
+          return;
+        }
+
+        var path = encodeURIComponent(this.selectedDoi) + '/transform/' + this.mimetype;
+        var resource = new Resource('http://api.crossref.org/works/' + path);
+        resource.get('text', null, { queue: 'citation' }).then(function (data) {
+          this.citationData = data;
+        }.bind(this), function () {
+          this.error = true;  //console.error('Error fetching data');
+        }.bind(this));
+      },
+      computeSearchAgain: function (edited, searched, searching) {
+        return edited && searched && !searching;
+      },
+      computeNoMatchSelected: function (selectedDoi) {
+        return !selectedDoi;
+      },
+      computeStyle: function (score) {
+        return 'opacity:' + score;
+      },
+      computeSelected: function (doi, selectedDoi) {
+        return selectedDoi === doi ? 'selected' : '';
+      },
+      computeFetching: function (citationData, selectedDoi) {
+        return selectedDoi && !citationData;
+      }
+    });
+  }());
+</script>

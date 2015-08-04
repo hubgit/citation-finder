@@ -1,13 +1,16 @@
 {
-  "name": "web-resource",
-  "version": "0.0.1",
-  "main": "web-resource.html",
-  "license": "MIT",
-  "ignore": [
-    "**/.*",
-    "node_modules",
-    "bower_components",
-    "test",
-    "tests"
-  ]
+    "name": "web-resource",
+    "version": "1.0.0",
+    "description": "An interface for fetching resources and collections of resources from the web",
+    "main": "import.html",
+    "authors": [
+        "Alf Eaton"
+    ],
+    "license": "MIT",
+    "homepage": "https://github.com/hubgit/web-resource",
+    "ignore": [
+        "**/.*",
+        "demo.html",
+        "README.md"
+    ]
 }

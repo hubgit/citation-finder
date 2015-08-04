@@ -1,7 +1,3 @@
-/*global Queue:false, console: false */
-
-'use strict';
-
 var queuesList = [];
 
 var queues = {};
@@ -75,6 +71,8 @@ Request.prototype.run = function() {
         var onresponse = function() {
             console.log(xhr.status, this.url);
 
+            var delay;
+
             // TODO: wrong item if parallel > 1
             this.queue.logs[0].status = xhr.status;
 
@@ -92,7 +90,7 @@ Request.prototype.run = function() {
                     break;
 
                 case 403: // rate-limited or forbidden
-                    var delay = this.rateLimitDelay(xhr);
+                    delay = this.rateLimitDelay(xhr);
 
                     if (delay === -1) {
                         console.log('Forbidden!');
@@ -108,7 +106,7 @@ Request.prototype.run = function() {
                     break;
 
                 case 429: // rate-limited
-                    var delay = this.rateLimitDelay(xhr);
+                    delay = this.rateLimitDelay(xhr);
 
                     console.log('Rate-limited: sleeping for', delay, 'seconds');
                     this.queue.stop(delay * 1000);
@@ -210,4 +208,3 @@ Request.prototype.parseLinkHeader = function(header) {
 
   return links;
 };
-

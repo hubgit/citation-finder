@@ -1,5 +1,3 @@
-'use strict';
-
 var Queue = function(options) {
     this.options = options || {};
     this.name = this.options.name;
@@ -68,5 +66,3 @@ Queue.prototype.log = function(item) {
 
     this.logs.unshift(item);
 };
-
-

@@ -1,7 +1,3 @@
-/*global Request:false, console:false */
-
-'use strict';
-
 var Resource = function(url, params) {
     if (!(this instanceof Resource)) {
         return new Resource(url, params);
@@ -14,6 +10,7 @@ var Resource = function(url, params) {
     this.url = url;
 
     if (params) {
+        this.params = params;
         this.url += this.buildQueryString(params);
     }
 };
@@ -39,6 +36,7 @@ Resource.prototype.prepareHeaders = function(headers, responseType) {
             break;
 
         case 'html':
+        case 'microdata':
             headers.accept = headers.accept || 'text/html';
             break;
 
@@ -73,20 +71,13 @@ Resource.prototype.prepareResponseType = function(responseType) {
     return responseType;
 };
 
-Resource.prototype.get = function(responseType, headers, overrides) {
+Resource.prototype.get = function(responseType, options) {
     //TODO: allow { priority: true } as options parameter?
 
-    var options = {
-        url: this.url,
-        headers: this.prepareHeaders(headers, responseType),
-        responseType: this.prepareResponseType(responseType),
-    };
-
-    if (overrides) {
-        Object.keys(overrides).forEach(function(key) {
-           options[key] = overrides[key];
-        });
-    }
+    options = options || {};
+    options.url = options.url || this.url;
+    options.headers = this.prepareHeaders(options.headers || {}, responseType);
+    options.responseType = this.prepareResponseType(responseType);
 
     console.log('request', options);
 
@@ -102,10 +93,22 @@ Resource.prototype.get = function(responseType, headers, overrides) {
 
                 if (!response.querySelector('base')) {
                     var base = response.createElement('base');
-                    base.href = this.request.xhr.getResponseHeader('Content-Location');
+                    try {
+                        base.href = this.request.xhr.getResponseHeader('Content-Location');
+                    } catch (e) {
+                        base.href = options.url;
+                    }
                     response.querySelector('head').appendChild(base);
                 }
                 break;
+        }
+
+        if (Array.isArray(options.select)) {
+            switch (responseType) {
+                case 'html':
+                    // select a single item
+                    return HTML.select(options.select[0], options.select[1], response);
+            }
         }
 
         return response;
@@ -150,4 +153,3 @@ Resource.prototype.absolute = function(path) {
 
     return url.href;
 };
-
