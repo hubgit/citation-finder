@@ -4,8 +4,6 @@
 <link rel="import" href="../../../bower_components/paper-radio-group/paper-radio-group.html">
 <link rel="import" href="../../../bower_components/paper-radio-button/paper-radio-button.html">
 
-<script src="../../lib/FileSaver.js"></script>
-
 <dom-module id="citation-finder">
   <link rel="import" type="css" href="citation-finder.css">
 
@@ -107,7 +105,7 @@
           //window.location.href = 'data:' + this.mimetype + ',' + encodeURIComponent(text);
         } else {
             var blob = new Blob([text], { type: this.mimetype });
-            saveAs(blob, "citations." + this.extensions[this.mimetype]);
+            window.saveAs(blob, 'citations.' + this.extensions[this.mimetype]);
             //var url = URL.createObjectURL(blob);
             //var link = document.createElement('a');
             //link.setAttribute('href', url);
