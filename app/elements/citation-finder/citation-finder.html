@@ -4,6 +4,8 @@
 <link rel="import" href="../../../bower_components/paper-radio-group/paper-radio-group.html">
 <link rel="import" href="../../../bower_components/paper-radio-button/paper-radio-button.html">
 
+<script src="../../lib/FileSaver.js"></script>
+
 <dom-module id="citation-finder">
   <link rel="import" type="css" href="citation-finder.css">
 
@@ -78,6 +80,10 @@
           value: 'application/x-research-info-systems'
         }
       },
+      extensions: {
+        'application/x-research-info-systems': 'ris',
+        'application/x-bibtex': 'bib'
+      },
       ready: function () {
         this.citations = [];
       },
@@ -90,21 +96,23 @@
       },
       downloadAll: function () {
         //var nodes = this.shadowRoot.querySelectorAll(':host /deep/ .citation-data');
-        var nodes = document.querySelectorAll('html /deep/ .citation-data');
+        var nodes = document.querySelectorAll('.citation-data');
         var text = Array.prototype.map.call(nodes, function (node) {
           return node.textContent.trim();
         }).join('\n');
+
         // open a data url in Safari (is there a better workaround?)
         if (typeof safari !== 'undefined') {
           window.location.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(text);
           //window.location.href = 'data:' + this.mimetype + ',' + encodeURIComponent(text);
         } else {
             var blob = new Blob([text], { type: this.mimetype });
-            var url = URL.createObjectURL(blob);
-            var link = document.createElement('a');
-            link.setAttribute('href', url);
-            link.click();
-          }
+            saveAs(blob, "citations." + this.extensions[this.mimetype]);
+            //var url = URL.createObjectURL(blob);
+            //var link = document.createElement('a');
+            //link.setAttribute('href', url);
+            //link.click();
+        }
       },
       computeIf: function (input, mimetype) {
         return input && mimetype;
