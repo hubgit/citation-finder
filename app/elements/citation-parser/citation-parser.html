@@ -148,7 +148,7 @@
         this.error = false;
         this.notfound = false;
         this.edited = false;
-        var resource = new Resource('http://api.crossref.org/works', {
+        var resource = new Resource('https://api.crossref.org/works', {
           query: this.input.replace(/[^\w\s]/g, '\\:'),
           rows: 3
         });
@@ -192,7 +192,7 @@
         }
 
         var path = encodeURIComponent(this.selectedDoi) + '/transform/' + this.mimetype;
-        var resource = new Resource('http://api.crossref.org/works/' + path);
+        var resource = new Resource('https://api.crossref.org/works/' + path);
         resource.get('text', null, { queue: 'citation' }).then(function (data) {
           this.citationData = data;
         }.bind(this), function () {
