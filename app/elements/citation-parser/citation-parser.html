@@ -149,7 +149,7 @@
         this.notfound = false;
         this.edited = false;
         var resource = new Resource('https://api.crossref.org/works', {
-          query: this.input.replace(/[^\w\s]/g, '\\:'),
+          'query.bibliographic': this.input.replace(/[^\w\s]/g, '\\:'),
           rows: 3
         });
         resource.get('json', null, { priority: this.priority }).then(function (data) {
