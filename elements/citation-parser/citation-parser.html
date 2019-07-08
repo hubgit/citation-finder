@@ -149,6 +149,7 @@
         this.notfound = false;
         this.edited = false;
         var resource = new Resource('https://api.crossref.org/works', {
+          mailto: 'eaton.alf@gmail.com',
           query: this.input.replace(/[^\w\s]/g, '\\:'),
           rows: 3
         });
@@ -192,7 +193,9 @@
         }
 
         var path = encodeURIComponent(this.selectedDoi) + '/transform/' + this.mimetype;
-        var resource = new Resource('https://api.crossref.org/works/' + path);
+        var resource = new Resource('https://api.crossref.org/works/' + path, {
+          mailto: 'eaton.alf@gmail.com',
+        });
         resource.get('text', null, { queue: 'citation' }).then(function (data) {
           this.citationData = data;
         }.bind(this), function () {
